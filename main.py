@@ -2793,8 +2793,9 @@ def add_player():
             Player.update(coach_id = idc).where(Player.id == pl_id).execute()
             with db:
                 plr =  player_list.select().where(Player.id == pl_id).get()
-                plr.player = pl
-                plr.bday = bd
+                plr.player = pl                
+                bd_new = format_date_for_db(str_date=bd)
+                plr.bday = bd_new
                 plr.rank = rn
                 plr.city = ct
                 plr.region = rg
@@ -3388,11 +3389,35 @@ def page():
         my_win.widget.hide()
         my_win.tableWidget.hide()
     elif tb == 3:  # вкладка -результаты-
+        semi_final = ["1-й полуфинал", "2-й полуфинал"]
+        stage_choice = []
+        for s in sf:
+            flag_choice = s.choice_flag
+            if flag_choice == 1:
+                stage_comp = s.stage
+                if stage_comp =="Предварительный":
+                    stage_choice.append(stage_comp)
+                elif stage_comp in semi_final:
+                    stage_choice.append("Полуфинальный")
+                else:
+                    stage_choice.append("Финальный")
+        stage_choice_set = set(stage_choice)
+
+        for i in my_win.groupBox_result.findChildren(QRadioButton): # перебирает радиокнопки и включает в зависмости от сделааной жеребьевки
+            stage_current = i.text()
+            if stage_current in stage_choice_set:
+                i.setEnabled(True)
+            else:
+                i.setEnabled(False)
+
         for i in my_win.groupBox_result.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
                 if i.isChecked():
                     stage_current = i.text()
+                    if stage_current in stage_choice_set:
+                        i.setEnabled(True)
+                    else:
+                        i.setEnabled(False)
                     break
-                    # state_visible = my_win.checkBox_4.isChecked()
                 elif (sender == my_win.radioButton_group or 
                     sender == my_win.radioButton_semifinal or sender == my_win.radioButton_final):
                     for i in my_win.groupBox_result.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
