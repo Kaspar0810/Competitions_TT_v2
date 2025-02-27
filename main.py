@@ -52,7 +52,7 @@ os.environ['QT_AUTO_SCREEN_SCALE_FACTOR'] = '1'
 # screen_rect = app.desktop().screenGeometry()
 # width, height = screen_rect.width(), screen_rect.height()
 # import collections
-from playhouse.migrate import * # для удаления, редактирования таблиц DB
+# from playhouse.migrate import * # для удаления, редактирования таблиц DB
 
 if not os.path.isdir("table_pdf"):  # создает папку 
     os.mkdir("table_pdf")
