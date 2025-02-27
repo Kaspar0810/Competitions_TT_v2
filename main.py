@@ -33,7 +33,6 @@ import numpy as np
 import contextlib
 import sys
 
-
 import pymysql
 import subprocess
 # import mysql.connector
@@ -1682,12 +1681,16 @@ def enabled_menu_after_choice():
 
         if stage == "Одна таблица":
             my_win.choice_one_table_Action.setEnabled(True)
+            my_win.radioButton_final.setenabled(True)
         elif stage == "Предварительный":
             my_win.choice_gr_Action.setEnabled(True)
+            my_win.radioButton_group.setEnabled(True)
         elif stage == "1-й полуфинал" or stage == "2-й полуфинал":
             my_win.choice_pf_Action.setEnabled(True)
+            my_win.radioButton_semifinal.setEnabled(True)
         else:
             my_win.choice_fin_Action.setEnabled(True)
+            my_win.radioButton_final.setEnabled(True)
 
 
 def db_insert_title(title_str):
@@ -3439,10 +3442,14 @@ def page():
         my_win.widget.hide()
         my_win.tableWidget.hide()
         my_win.resize(1270, 825)
-        my_win.tableView.setGeometry(QtCore.QRect(260, 150, 1000, 620))
-        my_win.tabWidget.setGeometry(QtCore.QRect(260, 0, 1000, 147))
+        # my_win.tableView.setGeometry(QtCore.QRect(260, 150, 1000, 620))
+        my_win.tableView.setGeometry(QtCore.QRect(260, 195, 1000, 620))
+        # my_win.tabWidget.setGeometry(QtCore.QRect(260, 0, 1000, 147))
+        my_win.tabWidget.setGeometry(QtCore.QRect(260, 0, 1000, 190))
         my_win.toolBox.setGeometry(QtCore.QRect(10, 10, 243, 762))
-        if stage_current == "Полуфинальный":
+        if stage_current == "Предварительный":
+            system_stage = sf.select().where(System.stage == stage_current).get()
+        elif stage_current == "Полуфинальный":
             system_stage = sf.select().where((System.stage == "1-й полуфинал") | (System.stage == "2-й полуфинал")).get()
             stage = my_win.comboBox_filter_semifinal.currentText()
             id_system = system_id(stage)
@@ -3450,6 +3457,7 @@ def page():
             system_stage = sf.select().where(System.stage == "1-й полуфинал").get()
         else: 
             system_stage = sf.select().where(System.stage == stage_current).get()
+        my_win.label_result.setText(f"{stage_current} этап")
         game_visible = system_stage.visible_game
         my_win.checkBox_4.setChecked(game_visible)
         my_win.checkBox_7.setEnabled(False)
@@ -4896,78 +4904,78 @@ def change_status_visible_and_score_game():
         match_current = match_db
         #  ==== изменение состояние =====
         if sender == my_win.checkBox_4:
-            for i in my_win.groupBox_kolvo_vstrech_gr.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+            for i in my_win.groupBox_kolvo_vstrech.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
                 if i.isChecked():
                     match_current = int(i.text())
                     break
             state_visible = my_win.checkBox_4.isChecked()
         elif (sender == my_win.radioButton_match_3 or 
             sender == my_win.radioButton_match_5 or sender == my_win.radioButton_match_7):
-            for i in my_win.groupBox_kolvo_vstrech_gr.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+            for i in my_win.groupBox_kolvo_vstrech.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
                 if i.isChecked():
                     match_current = int(i.text())
                     break
         if match_current == 3:
             my_win.radioButton_match_3.setChecked(True)
-            my_win.frame_gr_three.setVisible(True)
-            my_win.frame_gr_five.setVisible(False)
-            my_win.frame_gr_seven.setVisible(False)
+            my_win.frame_three.setVisible(True)
+            my_win.frame_five.setVisible(False)
+            my_win.frame_seven.setVisible(False)
         elif match_current == 5:
             my_win.radioButton_match_5.setChecked(True)
-            my_win.frame_gr_three.setVisible(True)
-            my_win.frame_gr_five.setVisible(True)
-            my_win.frame_gr_seven.setVisible(False)
+            my_win.frame_three.setVisible(True)
+            my_win.frame_five.setVisible(True)
+            my_win.frame_seven.setVisible(False)
         elif match_current == 7:
             my_win.radioButton_match_7.setChecked(True)
-            my_win.frame_gr_three.setVisible(True)
-            my_win.frame_gr_five.setVisible(True)
-            my_win.frame_gr_seven.setVisible(True)
+            my_win.frame_three.setVisible(True)
+            my_win.frame_five.setVisible(True)
+            my_win.frame_seven.setVisible(True)
         my_win.label_22.setVisible(True)
-    elif tab == 4:
-        if row_num == -1:
-            stage = "1-й полуфинал"
-        else:
-            id_res = my_win.tableView.model().index(row_num, 0).data() # данные строки tableView
-            result = Result.select().where(Result.id == id_res).get()
-            stage = result.system_stage
-        system_stage = system.select().where(System.stage == stage).get()
-        match_db = system_stage.score_flag
-        state_visible_db = system_stage.visible_game  # флаг, показывающий записывать счет в партиях или нет
-        match_current = match_db
-        state_visible = state_visible_db
-        my_win.checkBox_14.setEnabled(state_visible)
-        #  ==== изменение состояние =====
-        if sender == my_win.checkBox_14:
-            for i in my_win.groupBox_kolvo_vstrech_pf.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
-                if i.isChecked():
-                    match_current = int(i.text())
-                    break
-            state_visible = my_win.checkBox_14.isChecked()
-        elif (sender == my_win.radioButton_match_3 or 
-            sender == my_win.radioButton_match_5 or sender == my_win.radioButton_match_7):
-            for i in my_win.groupBox_kolvo_vstrech_pf.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
-                if i.isChecked():
-                    match_current = int(i.text())
-                    break
-            state_visible = state_visible_db
+    # elif tab == 4:
+    #     if row_num == -1:
+    #         stage = "1-й полуфинал"
+    #     else:
+    #         id_res = my_win.tableView.model().index(row_num, 0).data() # данные строки tableView
+    #         result = Result.select().where(Result.id == id_res).get()
+    #         stage = result.system_stage
+    #     system_stage = system.select().where(System.stage == stage).get()
+    #     match_db = system_stage.score_flag
+    #     state_visible_db = system_stage.visible_game  # флаг, показывающий записывать счет в партиях или нет
+    #     match_current = match_db
+    #     state_visible = state_visible_db
+    #     my_win.checkBox_14.setEnabled(state_visible)
+    #     #  ==== изменение состояние =====
+    #     if sender == my_win.checkBox_14:
+    #         for i in my_win.groupBox_kolvo_vstrech_pf.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+    #             if i.isChecked():
+    #                 match_current = int(i.text())
+    #                 break
+    #         state_visible = my_win.checkBox_14.isChecked()
+    #     elif (sender == my_win.radioButton_match_3 or 
+    #         sender == my_win.radioButton_match_5 or sender == my_win.radioButton_match_7):
+    #         for i in my_win.groupBox_kolvo_vstrech_pf.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+    #             if i.isChecked():
+    #                 match_current = int(i.text())
+    #                 break
+    #         state_visible = state_visible_db
 
-        if match_current == 3:
-            my_win.radioButton_match_9.setChecked(True)
-            my_win.frame_pf_three.setVisible(True)
-            my_win.frame_pf_five.setVisible(False)
-            my_win.frame_pf_seven.setVisible(False)
-        elif match_current == 5:
-            my_win.radioButton_match_10.setChecked(True)
-            my_win.frame_pf_three.setVisible(True)
-            my_win.frame_pf_five.setVisible(True)
-            my_win.frame_pf_seven.setVisible(False)
-        elif match_current == 7:
-            my_win.radioButton_match_11.setChecked(True)
-            my_win.frame_pf_three.setVisible(True)
-            my_win.frame_pf_five.setVisible(True)
-            my_win.frame_pf_seven.setVisible(True)
-        my_win.label_71.setVisible(True)
-    else:
+    #     if match_current == 3:
+    #         my_win.radioButton_match_9.setChecked(True)
+    #         my_win.frame_pf_three.setVisible(True)
+    #         my_win.frame_pf_five.setVisible(False)
+    #         my_win.frame_pf_seven.setVisible(False)
+    #     elif match_current == 5:
+    #         my_win.radioButton_match_10.setChecked(True)
+    #         my_win.frame_pf_three.setVisible(True)
+    #         my_win.frame_pf_five.setVisible(True)
+    #         my_win.frame_pf_seven.setVisible(False)
+    #     elif match_current == 7:
+    #         my_win.radioButton_match_11.setChecked(True)
+    #         my_win.frame_pf_three.setVisible(True)
+    #         my_win.frame_pf_five.setVisible(True)
+    #         my_win.frame_pf_seven.setVisible(True)
+    #     my_win.label_71.setVisible(True)
+    # else:
         if row_num == -1: # не выбрана ни одна встреча
             system_stage = True
             match_db = 5
@@ -4977,6 +4985,10 @@ def change_status_visible_and_score_game():
             if count == 1:
                 stage = "Одна таблица"
             else:
+                for i in my_win.groupBox_result.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+                    if i.isChecked():
+                        stage_current = i.text()
+                        break
                 stage = my_win.tableView.model().index(row_num, 2).data() #  данные ячейки (из какого финала играют встречу)
             # id_system = system_id(stage)
             # system_stage = system.select().where(System.id == id_system).get()
@@ -4988,55 +5000,55 @@ def change_status_visible_and_score_game():
         #=========
 
         #  ==== изменение состояние =====
-        if sender == my_win.checkBox_visible_game:
-            for i in my_win.groupBox_kolvo_vstrech_fin.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
-                if i.isChecked():
-                    match_current = int(i.text())
-                    break
-            state_visible = my_win.checkBox_visible_game.isChecked()
-        elif (sender == my_win.radioButton_match_4 or 
-            sender == my_win.radioButton_match_6 or sender == my_win.radioButton_match_8):
-            for i in my_win.groupBox_kolvo_vstrech_fin.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
-                if i.isChecked():
-                    match_current = int(i.text())
-                    break
-            state_visible = state_visible_db
+        # if sender == my_win.checkBox_visible_game:
+        #     for i in my_win.groupBox_kolvo_vstrech_fin.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+        #         if i.isChecked():
+        #             match_current = int(i.text())
+        #             break
+        #     state_visible = my_win.checkBox_visible_game.isChecked()
+        # elif (sender == my_win.radioButton_match_4 or 
+        #     sender == my_win.radioButton_match_6 or sender == my_win.radioButton_match_8):
+        #     for i in my_win.groupBox_kolvo_vstrech_fin.findChildren(QRadioButton): # перебирает радиокнопки и определяет какая отмечена
+        #         if i.isChecked():
+        #             match_current = int(i.text())
+        #             break
+        #     state_visible = state_visible_db
 
-        if match_current == 3:
-            my_win.radioButton_match_4.setChecked(True)
-            my_win.frame_fin_three.setVisible(True)
-            my_win.frame_fin_five.setVisible(False)
-            my_win.frame_fin_seven.setVisible(False)
-        elif match_current == 5:
-            my_win.radioButton_match_6.setChecked(True)
-            my_win.frame_fin_three.setVisible(True)
-            my_win.frame_fin_five.setVisible(True)
-            my_win.frame_fin_seven.setVisible(False)
-        elif match_current == 7:
-            my_win.radioButton_match_8.setChecked(True)
-            my_win.frame_fin_three.setVisible(True)
-            my_win.frame_fin_five.setVisible(True)
-            my_win.frame_fin_seven.setVisible(True)
+        # if match_current == 3:
+        #     my_win.radioButton_match_4.setChecked(True)
+        #     my_win.frame_fin_three.setVisible(True)
+        #     my_win.frame_fin_five.setVisible(False)
+        #     my_win.frame_fin_seven.setVisible(False)
+        # elif match_current == 5:
+        #     my_win.radioButton_match_6.setChecked(True)
+        #     my_win.frame_fin_three.setVisible(True)
+        #     my_win.frame_fin_five.setVisible(True)
+        #     my_win.frame_fin_seven.setVisible(False)
+        # elif match_current == 7:
+        #     my_win.radioButton_match_8.setChecked(True)
+        #     my_win.frame_fin_three.setVisible(True)
+        #     my_win.frame_fin_five.setVisible(True)
+        #     my_win.frame_fin_seven.setVisible(True)
         my_win.label_40.setVisible(True)
     if state_visible is False:
-        frame_gr_list = [my_win.frame_gr_three,  my_win.frame_gr_five, my_win.frame_gr_seven]
-        frame_pf_list = [my_win.frame_pf_three,  my_win.frame_pf_five, my_win.frame_pf_seven]
-        frame_fin_list = [my_win.frame_fin_three,  my_win.frame_fin_five, my_win.frame_fin_seven]
+        frame_gr_list = [my_win.frame_three,  my_win.frame_five, my_win.frame_seven]
+        # frame_pf_list = [my_win.frame_pf_three,  my_win.frame_pf_five, my_win.frame_pf_seven]
+        # frame_fin_list = [my_win.frame_fin_three,  my_win.frame_fin_five, my_win.frame_fin_seven]
         if tab == 3:
             for k in frame_gr_list:
                 k.setVisible(False)
             my_win.checkBox_4.setChecked(False)
-            my_win.lineEdit_pl1_score_total_gr.setFocus(True)
-        elif tab == 4:
-            for k in frame_pf_list:
-                k.setVisible(False)
-            my_win.checkBox_14.setChecked(False)
-            my_win.lineEdit_pl1_score_total_pf.setFocus(True)
-        else:
-            for k in frame_fin_list:
-                k.setVisible(False)
-            my_win.checkBox_visible_game.setChecked(False)
-            my_win.lineEdit_pl1_score_total_fin.setFocus(True)
+            my_win.lineEdit_pl1_score_total.setFocus(True)
+        # elif tab == 4:
+        #     for k in frame_pf_list:
+        #         k.setVisible(False)
+        #     my_win.checkBox_14.setChecked(False)
+        #     my_win.lineEdit_pl1_score_total_pf.setFocus(True)
+        # else:
+        #     for k in frame_fin_list:
+        #         k.setVisible(False)
+        #     my_win.checkBox_visible_game.setChecked(False)
+        #     my_win.lineEdit_pl1_score_total_fin.setFocus(True)
         my_win.label_22.setVisible(False)
     system_id = system_stage.id
     systems = system.select().where(System.id == system_id).get()
@@ -5117,14 +5129,15 @@ def change_tab_filter():
                             stage_current = i.text()
                             break
     if stage_current == "Предварительный":
-         my_win.stackedWidget.setCurrentIndex(0)
+        my_win.stackedWidget.setCurrentIndex(0)       
     elif stage_current == "Полуфинальный":
         my_win.stackedWidget.setCurrentIndex(1)
-        page()
+        # page()
         # my_win.stackedWidget.setTabVisible(1, False)
     else:
         my_win.stackedWidget.setCurrentIndex(2)
-
+    # page()
+    my_win.label_result.setText(f"{stage_current} этап")
 
 
 def select_player_in_list():
@@ -5213,17 +5226,17 @@ def select_player_in_game():
         my_win.checkBox_7.setChecked(False)
         my_win.checkBox_8.setChecked(False)
         my_win.groupBox_match.setTitle(f"Встреча №{numer_game}")
-    elif tab == 4:
-        my_win.checkBox_12.setEnabled(True)
-        my_win.checkBox_13.setEnabled(True)
-        my_win.checkBox_12.setChecked(False)
-        my_win.checkBox_13.setChecked(False)
-    elif tab == 5:  # вкладка -финалы-
-        my_win.checkBox_9.setEnabled(True)  # включает чекбоксы неявка
-        my_win.checkBox_10.setEnabled(True)
-        my_win.checkBox_9.setChecked(False)
-        my_win.checkBox_10.setChecked(False)
-        my_win.groupBox_match_2.setTitle(f"Встреча №{numer_game}")
+    # elif tab == 4:
+    #     my_win.checkBox_12.setEnabled(True)
+    #     my_win.checkBox_13.setEnabled(True)
+    #     my_win.checkBox_12.setChecked(False)
+    #     my_win.checkBox_13.setChecked(False)
+    # elif tab == 5:  # вкладка -финалы-
+    #     my_win.checkBox_9.setEnabled(True)  # включает чекбоксы неявка
+    #     my_win.checkBox_10.setEnabled(True)
+    #     my_win.checkBox_9.setChecked(False)
+    #     my_win.checkBox_10.setChecked(False)
+    #     my_win.groupBox_match_2.setTitle(f"Встреча №{numer_game}")
     elif tab == 7:
         player_id = my_win.tableView.model().index(row_num, 0).data()
         players = Player.select().where(Player.id == player_id).get()
@@ -5233,7 +5246,8 @@ def select_player_in_game():
         count = len(player_list)
         fill_table(player_list)
     if tab == 3 or tab == 4 or tab == 5:
-        my_win.groupBox_kolvo_vstrech_fin.setEnabled(True)
+        # my_win.groupBox_kolvo_vstrech_fin.setEnabled(True)
+        my_win.groupBox_kolvo_vstrech.setEnabled(True)
         state_visible = change_status_visible_and_score_game()
         pl1 = my_win.tableView.model().index(row_num, 4).data()
         pl2 = my_win.tableView.model().index(row_num, 5).data()
