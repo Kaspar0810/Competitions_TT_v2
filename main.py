@@ -5858,82 +5858,44 @@ def focus():
     sum_total_game список (1-й колво очков которые надо набрать, 2-й сколько уже набрали)"""
     sender = my_win.sender()  # в зависимости от сигала кнопки идет сортировка
     system = System.select().where(System.title_id == title_id())
-    tab = my_win.tabWidget.currentIndex()
-    stage = my_win.comboBox_filter_final.currentText()
+    # tab = my_win.tabWidget.currentIndex()
+    # stage = my_win.comboBox_filter_final.currentText()
     idx = my_win.tableView.currentIndex() # определиние номера строки
     row_num = idx.row()
     mark_list = [my_win.lineEdit_pl1_s1, my_win.lineEdit_pl2_s1, my_win.lineEdit_pl1_s2, my_win.lineEdit_pl2_s2,
             my_win.lineEdit_pl1_s3, my_win.lineEdit_pl2_s3, my_win.lineEdit_pl1_s4, my_win.lineEdit_pl2_s4,
             my_win.lineEdit_pl1_s5, my_win.lineEdit_pl2_s5, my_win.lineEdit_pl1_s6, my_win.lineEdit_pl2_s6,
             my_win.lineEdit_pl1_s7, my_win.lineEdit_pl2_s7]
-    if tab == 3:
-        sys = system.select().where(System.stage == "Предварительный").get()
-        sf = sys.score_flag  # флаг из скольки партий играется матч
-        mark_index = mark_list.index(sender)
-        mark = mark_list[mark_index].text()
-        flag_mistake = control_mark_in_score(mark, sf)
-        if flag_mistake is True:
-            return
-        if mark_index % 2 == 1:
-            if mark_index >= sf:
-                sum_total_game = score_in_game()  # подсчет очков в партии
-                if len(sum_total_game) == 0: # значит была ошибка в счете и поэтому он вернул пустой список
-                    return
-                if sum_total_game[0] != sum_total_game[1]:
-                    mark_list[mark_index + 1].setFocus()
-                else:
-                    my_win.Button_Ok.setFocus()
-                    return
-            mark_list[mark_index + 1].setFocus()    
-        else:
-            mark_list[mark_index + 1].setFocus()
-    # elif tab == 4:
-    #     if row_num  == -1:
-    #         stage = "1-й полуфинал"
-    #     else:
-    #         id_res = my_win.tableView.model().index(row_num, 0).data() # данные ячейки tableView
-    #         result = Result.select().where(Result.id == id_res).get()
-    #         stage = result.system_stage
-    #     sys = system.select().where(System.stage == stage).get()
-    #     sf = sys.score_flag  # флаг из скольки партий играется матч
-    #     mark_index = mark_list_sf.index(sender)
-    #     mark = mark_list_sf[mark_index].text()
-    #     flag_mistake = control_mark_in_score(mark, sf)
-    #     if flag_mistake is True:
-    #         return
-    #     if mark_index % 2 == 1:
-    #         if mark_index >= sf:
-    #             sum_total_game = score_in_game()  # подсчет очков в партии
-    #             if sum_total_game[0] != sum_total_game[1]:
-    #                 mark_list_sf[mark_index + 1].setFocus()
-    #             else:
-    #                 my_win.Button_Ok_pf.setFocus()
-    #                 return
-    #         mark_list_sf[mark_index + 1].setFocus()    
-    #     else:
-    #         mark_list_sf[mark_index + 1].setFocus()
-    # elif tab == 5:
-    #     final = my_win.tableView.model().index(row_num, 2).data() # данные ячейки tableView
-    #     if stage == "Одна таблица":
-    #         final = stage
-    #     sys = system.select().where(System.stage == final).get()
-    #     sf = sys.score_flag  # флаг из скольки партий играется матч
-    #     mark_index = mark_list_fin.index(sender)
-    #     mark = mark_list_fin[mark_index].text() # счет в партии в текстовом формате
-    #     flag_mistake = control_mark_in_score(mark, sf)
-    #     if flag_mistake is True:
-    #         return
-    #     if mark_index % 2 == 1: # если счет вторго игрока (проверяет все ли партии сыграны)
-    #         if mark_index >= sf:
-    #             sum_total_game = score_in_game()  # подсчет очков в партии
-    #             if sum_total_game[0] != sum_total_game[1]:
-    #                 mark_list_fin[mark_index + 1].setFocus()
-    #             else:
-    #                 my_win.Button_Ok_fin.setFocus()
-    #                 return
-    #         mark_list_fin[mark_index + 1].setFocus()    
-    #     else:
-    #         mark_list_fin[mark_index + 1].setFocus()
+    # if tab == 3:
+    stage_current = radiobutton_stage()
+    if stage_current == "Предварительный":
+        stage = stage_current       
+    elif stage_current == "Полуфинальный":
+        stage = my_win.tableView.model().index(row_num, 0).data() # данные ячейки tableView
+    else:
+        stage = my_win.comboBox_filter_final.currentText()
+    id_system = system_id(stage)
+    sys = system.select().where(System.id == id_system).get()
+    sf = sys.score_flag  # флаг из скольки партий играется матч
+    mark_index = mark_list.index(sender)
+    mark = mark_list[mark_index].text()
+    flag_mistake = control_mark_in_score(mark, sf)
+    if flag_mistake is True:
+        return
+    if mark_index % 2 == 1:
+        if mark_index >= sf:
+            sum_total_game = score_in_game()  # подсчет очков в партии
+            if len(sum_total_game) == 0: # значит была ошибка в счете и поэтому он вернул пустой список
+                return
+            if sum_total_game[0] != sum_total_game[1]:
+                mark_list[mark_index + 1].setFocus()
+            else:
+                my_win.Button_Ok.setFocus()
+                return
+        mark_list[mark_index + 1].setFocus()    
+    else:
+        mark_list[mark_index + 1].setFocus()
+ 
 
 
 def control_mark_in_score(mark, sf):
@@ -6219,7 +6181,7 @@ def check_real_player():
 def enter_score(none_player=0):
     """заносит в таблицу -результаты- победителя, счет и т.п. sc_total [партии выигранные, проигранные, очки победителя
      очки проигравшего]"""
-    tab = my_win.tabWidget.currentIndex()
+    # tab = my_win.tabWidget.currentIndex()
     row_num = my_win.tableView.currentIndex().row()
     id = my_win.tableView.model().index(row_num, 0).data() # данные ячейки tableView
     fin = my_win.tableView.model().index(row_num, 2).data() # данные ячейки tableView
@@ -6227,10 +6189,11 @@ def enter_score(none_player=0):
     if row_num == -1: # значит не выбрана ни одна строка и нажат ентер
         return
 
-    sys = System.select().where(System.title_id == title_id())   
-    if tab == 3: # группы
-        stage = "Предварительный"
-    elif tab == 4: # полуфиналы
+    sys = System.select().where(System.title_id == title_id()) 
+    stage_current = radiobutton_stage() # определяет какой этап выбран
+    if stage_current == "Предварительный": # группы
+        stage = stage_current
+    elif stage_current == "Полуфинальный": # полуфиналы
         if row_num == -1: # не выбрана строка и идет ПФ по умочанию
             stage = "1-й полуфинал"
         else:
@@ -6242,8 +6205,9 @@ def enter_score(none_player=0):
             stage = "Одна таблица"
         else:
             stage = fin
-    # находит system id последнего
-    system = sys.select().where(System.stage == stage).get()
+    id_system = system_id(stage)
+    system = sys.select().where(System.id == id_system).get()
+    # system = sys.select().where(System.stage == stage).get()
     type = system.type_table
     flag = 0
     if stage in ["Предварительный", "1-й полуфинал", "2-й полуфинал"]:
